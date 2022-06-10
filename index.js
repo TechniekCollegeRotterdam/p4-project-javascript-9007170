@@ -4,8 +4,10 @@ const c = canvas.getContext('2d')
 canvas.width = innerWidth
 canvas.height = innerHeight
 
-class boundary{
-    constructor({position}) {
+class Boundary {
+    constructor({
+        position
+    }) {
         this.position = position
         this.width = 40
         this.height = 40
@@ -17,20 +19,33 @@ class boundary{
     }
 }
 
-const boundary = new Boundary({
-    position: {
-        x:0,
-        y:0
-    }
+const map = [
+    ['-', '-', '-', '-', '-', '-'],
+    ['-', ' ', ' ', ' ', ' ', '-'],
+    ['-', ' ', ' ', ' ', ' ', '-'],
+    ['-', '-', '-', '-', '-', '-']
+]
+const boundaries = []
+
+map.forEach((row, i) => {
+    row.forEach((Symbol, j) => {
+        switch (Symbol) {
+            case '-':
+                boundaries.push(
+                    new Boundary({
+                        position: {
+                            x: 40 * j,
+                            y: 40 * i
+                        }
+                    })
+                )
+                break
+
+        }
+    })
+
 })
 
-boundary.draw()
-
-const boundary2 = new Boundary({
-    position: {
-        x:41,
-        y:0
-    }
+boundaries.forEach(Boundary => {
+    Boundary.draw()
 })
-
-boundary2.draw()
