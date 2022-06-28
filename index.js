@@ -1,11 +1,12 @@
 const canvas = document.querySelector('canvas')
 const c = canvas.getContext('2d')
 const scoreEl = document.querySelector('#scoreEL')
-const audio = new Audio("music.wav");
+const audio = new Audio("Pac-man.mp3");
 
 
 canvas.width = innerWidth
 canvas.height = innerHeight
+
 
 class Boundary {
     static width = 40
@@ -38,7 +39,7 @@ class Player {
         this.radius = 15 //de grote van de bol
         this.radians = 0.75
         this.openRate = 0.12
-        this.rotation =0
+        this.rotation = 0
     }
 
     draw() {
@@ -65,16 +66,20 @@ class Player {
         this.position.x += this.velocity.x
         this.position.y += this.velocity.y
 
-        if (this.radians < 0 || this.radians > .75) this.openRate
-        = -this.openRate
+        if (this.radians < 0 || this.radians > .75) this.openRate = -this.openRate
 
         this.radians += this.openRate
     }
 }
 
+// We going to make the Ghost 
 class Ghost {
     static speed = 2
-    constructor({ position, velocity, color = 'red'}) {
+    constructor({
+        position,
+        velocity,
+        color = 'red'
+    }) {
         this.position = position
         this.velocity = velocity
         this.radius = 15 //de grote van de bol
@@ -99,7 +104,7 @@ class Ghost {
         this.position.y += this.velocity.y
     }
 }
-
+// here we going to make the Pellet
 class Pellet {
     constructor({
         position,
@@ -117,9 +122,11 @@ class Pellet {
         c.closePath()
     }
 }
-
+//here we going to make the PowerUp for pac-man
 class PowerUp {
-    constructor({  position }) {
+    constructor({
+        position
+    }) {
         this.position = position
         this.radius = 8
     }
@@ -138,6 +145,7 @@ const pellets = []
 const boundaries = []
 const powerUps = []
 const ghosts = [
+    //here we make the ghost 
     new Ghost({
         position: {
             x: Boundary.width * 6 + Boundary.width / 2,
@@ -159,6 +167,7 @@ const ghosts = [
         },
         color: 'pink'
     })
+
 ]
 const player = new Player({
     position: { // hier plaatsen we pacman in de map
@@ -189,7 +198,7 @@ const keys = {
 let lastkey = ''
 let score = 0
 
-// dit is om de map te maken 
+// here we make the map 
 const map = [
     ['1', '-', '-', '-', '-', '-', '-', '-', '-', '-', '2'],
     ['|', '.', '.', '.', '.', '.', '.', '.', '.', '.', '|'],
@@ -213,6 +222,7 @@ function createImage(src) {
     return image
 }
 
+// Here we make the map with images 
 map.forEach((row, i) => {
     row.forEach((symbol, j) => {
         switch (symbol) {
@@ -406,41 +416,44 @@ map.forEach((row, i) => {
                 )
                 break
 
-             case 'p':
+            case 'p':
                 powerUps.push(
                     new PowerUp({
                         position: {
-                           x: Boundary.width * j + Boundary.width / 2,
+                            x: Boundary.width * j + Boundary.width / 2,
                             y: Boundary.height * i + Boundary.height / 2
                         },
                     })
                 )
-                break    
+                break
 
         }
     })
 
 })
 
-function circleCollidesWithRectangle({ circle, rectangle }) {
+function circleCollidesWithRectangle({
+    circle,
+    rectangle
+}) {
     const padding = Boundary.width / 2 - circle.radius - 1
     return (
         circle.position.y - circle.radius + circle.velocity.y <=
-            rectangle.position.y + rectangle.height + padding &&
+        rectangle.position.y + rectangle.height + padding &&
         circle.position.x + circle.radius + circle.velocity.x >=
-            rectangle.position.x - padding &&
+        rectangle.position.x - padding &&
         circle.position.y + circle.radius + circle.velocity.y >=
-            rectangle.position.y - padding &&
+        rectangle.position.y - padding &&
         circle.position.x - circle.radius + circle.velocity.x <=
-            rectangle.position.x + rectangle.width + padding
-        )
+        rectangle.position.x + rectangle.width + padding
+    )
 }
 
 let animationid
 
 // dit is om de het bolletje te laten bewegen naar beneden, boven, links en rechts
 function animate() {
-   animationid = requestAnimationFrame(animate)
+    animationid = requestAnimationFrame(animate)
     c.clearRect(0, 0, canvas.width, canvas.height)
 
     if (keys.w.pressed && lastkey === 'w') {
@@ -532,31 +545,32 @@ function animate() {
     //dectect collision between ghost and player
     for (let i = ghosts.length - 1; 0 <= i; i--) {
         const ghost = ghosts[i]
-     // ghost touch player
-     if (
-        Math.hypot(
-            ghost.position.x - player.position.x,
-            ghost.position.y - player.position.y
-        ) <
-        ghost.radius + player.radius
-    ) {
+        // ghost touch player
+        if (
+            Math.hypot(
+                ghost.position.x - player.position.x,
+                ghost.position.y - player.position.y
+            ) <
+            ghost.radius + player.radius
+        ) {
 
-        if(ghost.scared) {
-            ghosts.splice(i, 1)
+            if (ghost.scared) {
+                ghosts.splice(i, 1)
 
-        } else {
+            } else {
 
-        
-        cancelAnimationFrame(animationid)
+
+                cancelAnimationFrame(animationid)
+                console.log('you lose')
+            }
         }
     }
-}
 
-// win condition goes here
-if (pellets.length ===0) {
-    console.log ('you win')
-    cancelAnimationFrame(animationid)
-}
+    // win condition goes here
+    if (pellets.length === 0) {
+        console.log('you win')
+        cancelAnimationFrame(animationid)
+    }
 
     // powerups go
     for (let i = powerUps.length - 1; 0 <= i; i--) {
@@ -577,7 +591,7 @@ if (pellets.length ===0) {
             ghosts.forEach(ghost => {
                 ghost.scared = true
 
-                setTimeout(() =>{
+                setTimeout(() => {
                     ghost.scared = false
                 }, 5000)
             })
@@ -589,7 +603,7 @@ if (pellets.length ===0) {
         const pellet = pellets[i]
         pellet.draw()
 
-        
+
         if (
             Math.hypot(
                 pellet.position.x - player.position.x,
@@ -625,7 +639,7 @@ if (pellets.length ===0) {
     ghosts.forEach((ghost) => {
         ghost.update()
 
-       
+
         const collisions = []
         boundaries.forEach(boundary => {
             if (
@@ -705,11 +719,10 @@ if (pellets.length ===0) {
             else if (ghost.velocity.y > 0) ghost.prevCollisions.push('down')
 
 
-            const pathways = ghost.prevCollisions.filter((collision
-                ) => {
+            const pathways = ghost.prevCollisions.filter((collision) => {
                 return !collisions.includes(collision)
             })
-         console.log(pathways);
+            console.log(pathways);
 
             const direction = pathways[Math.floor(Math.random() * pathways.length)]
             // console.log(direction);
@@ -749,7 +762,7 @@ if (pellets.length ===0) {
     else if (player.velocity.y > 0) player.rotation = Math.PI / 2
     else if (player.velocity.y < 0) player.rotation = Math.PI * 1.5
 
-}// end of anitmate
+} // end of anitmate
 
 animate()
 
